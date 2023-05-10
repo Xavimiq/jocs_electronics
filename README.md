@@ -1,2 +1,2 @@
 # jocs_electronics
-Group of friends developing our first 3D game with 3++
+Group of friends developing our first 3D game with C++
