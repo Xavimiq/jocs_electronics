@@ -98,17 +98,20 @@ void Game::render(void)
 	EntityMesh* e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1,1,1));
 	//EntityMesh* e_mesh2 = new EntityMesh(NULL, "ent", mesh2, texture, shader2, Vector3(100, 1, 1));
 	
-	for (int i = 0; i < 5; i++)
+	/*
+	for (int i = 0; i < 1; i++)
 	{
-		for  (int j = 0; j < 5; j++)
+		for  (int j = 0; j < 2; j++)
 		{
 			EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(i*50, j*50, 1));
 			e_mesh->addChild(e_mesh_child);
 		}
 	}
+	*/
+	EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1 * 50, 2 * 50, 1));
+	e_mesh->addChild(e_mesh_child);
 	
-	
-	e_mesh->model.translate(0, 0, position_z);
+	e_mesh_child->model.translate(0, 0, position_z);
 
 	//rotate;
 	

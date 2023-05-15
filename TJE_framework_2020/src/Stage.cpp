@@ -62,9 +62,9 @@ PlayStage::PlayStage() : Stage() {
 	//EntityMesh* e_mesh2 = new EntityMesh(NULL, "ent", mesh2, texture, shader2, Vector3(100, 1, 1));
 
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 1; i++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (int j = 0; j < 1; j++)
 		{
 			EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh2, texture, shader, Vector3(i * 50, j * 50, 1));
 			root->addChild(e_mesh_child);
