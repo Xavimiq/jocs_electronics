@@ -29,7 +29,8 @@ FBO* fbo = NULL;
 bool freecam = true;
 Game* Game::instance = NULL;
 //EntityMesh* e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1, 1, 1));
-
+float delta_yaw;
+float delta_pitch;
 
 Stage* gameplay = new Stage();
 
@@ -98,20 +99,17 @@ void Game::render(void)
 	EntityMesh* e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1,1,1));
 	//EntityMesh* e_mesh2 = new EntityMesh(NULL, "ent", mesh2, texture, shader2, Vector3(100, 1, 1));
 	
-	/*
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		for  (int j = 0; j < 2; j++)
+		for  (int j = 0; j < 5; j++)
 		{
 			EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(i*50, j*50, 1));
 			e_mesh->addChild(e_mesh_child);
 		}
 	}
-	*/
-	EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1 * 50, 2 * 50, 1));
-	e_mesh->addChild(e_mesh_child);
 	
-	e_mesh_child->model.translate(0, 0, position_z);
+	
+	e_mesh->model.translate(0, 0, position_z);
 
 	//rotate;
 	
@@ -123,6 +121,7 @@ void Game::render(void)
 
 	//
 	e_mesh->render();
+	
 	if(shader)
 	{
 		/*
@@ -173,13 +172,32 @@ void Game::update(double seconds_elapsed)
 	angle += (float)seconds_elapsed * 10.0f;
 	position_z += (float)seconds_elapsed * 10.0f;
 
+
+	//Movment of the camera
+	Input::centerMouse();
+
+	delta_yaw += Input::mouse_delta.y * 0.005f;
+	delta_pitch += Input::mouse_delta.x * 0.005f;
+
+	delta_yaw = fmod(delta_yaw, 2 * M_PI);
+	delta_pitch = fmod(delta_pitch, 2 * M_PI);
+
+	delta_yaw = clamp(delta_yaw, -M_PI * 0.25, M_PI * 0.25);
+
+	Matrix44 mPitch, mYaw;
+	mPitch.setRotation(delta_pitch, Vector3(0, -1, 0));
+	mYaw.setRotation(delta_yaw, camera->getLocalVector(Vector3(-1, 0, 0)));
+
+	camera->fromRotationMatrix(mPitch * mYaw);
+
 	//mouse input to rotate the cam
+	/*
 	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?
 	{
 		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f,-1.0f,0.0f));
 		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector( Vector3(-1.0f,0.0f,0.0f)));
 	}
-
+	*/
 	//async input to move the camera around
 	if (freecam)
 	{

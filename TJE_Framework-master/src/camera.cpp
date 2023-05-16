@@ -74,6 +74,10 @@ void Camera::rotate(float angle, const Vector3& axis)
 
 }
 
+void Camera::fromRotationMatrix(Matrix44& m) {
+	lookAt(eye, eye + m.frontVector() * 100.f, up);
+}
+
 void Camera::setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
 	type = ORTHOGRAPHIC;
