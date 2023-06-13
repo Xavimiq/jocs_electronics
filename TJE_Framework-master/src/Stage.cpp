@@ -44,15 +44,15 @@ PlayStage::PlayStage() : Stage() {
 	
 
 	// example of loading Mesh from Mesh Manager
-	Mesh* mesh;
-	mesh = Mesh::Get("data/untitled.obj");
+	//Mesh* mesh;
+	//mesh = Mesh::Get("data/untitled.obj");
 
 	// example of shader loading using the shaders manager
-	Shader* shader;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color.fs");
+	//Shader* shader;
+	//shader = Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color.fs");
 
 
-	e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1, 1, 1));
+	//e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(1, 1, 1));
 	
 
 	World* my_world = World::get_instance();
@@ -86,7 +86,7 @@ void PlayStage::render()
 
 
 	//Draw the floor grid
-	drawGrid();
+	//drawGrid();
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
@@ -150,7 +150,7 @@ MenuStage::MenuStage() : Stage() {
 	int width = Game::instance->window_width;
 	int height = Game::instance->window_height;
 	
-	root = new Entity();
+	//root = new Entity();
 	Texture* texture;
 	texture = new Texture();
 	texture->load("data/texture.tga");
@@ -162,23 +162,17 @@ MenuStage::MenuStage() : Stage() {
 	//my_player = new EntityPlayer(Vector3(100, 100, 100));
 	
 	my_camera = new Camera();
-	my_camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+	my_camera->lookAt(Vector3(0.f, 20.f, 20.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 	my_camera->setPerspective(70.f, width / (float)height, 0.1f, 10000.f);
 
 	// example of shader loading using the shaders manager
 	Shader* shader;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
-	
-	for (int i = 0; i < 5; i++)
-	{
-		for (int j = 0; j < 5; j++)
-		{
-			EntityMesh* e_mesh_child = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(i * 200, j * 200, 1));
-			this->root->addChild(e_mesh_child);
-		}
-	}
-		
+
+	World::get_instance()->parseScene("data/myscene_MenuStage.scene", this->root, "MenuStage");
+	std::cout << root.children.size() << std::endl;
+	///ARREGLAR PARSE SCENE PARA PODER CARGAR DESEDE MENU STAGE
 }
 
 void MenuStage::render()
@@ -198,7 +192,7 @@ void MenuStage::render()
 	glDisable(GL_CULL_FACE);
 
 	//root->rotate(ang, Vector3(0, 1.0f, 0));
-	this->root->render();
+	this->root.render();
 
 	//Draw the floor grid
 	drawGrid();
@@ -219,12 +213,12 @@ void MenuStage::update(float seconds_elapsed)
 	Stage::update(seconds_elapsed);
 
 	// Variable para controlar la rotación automática
-	float auto_rotation_speed = -0.0125f;
+	float auto_rotation_speed = -0.00725f;
 
 	// ...
 
 	// Movimiento de la cámara
-	Input::centerMouse();
+	//Input::centerMouse();
 
 	delta_yaw += auto_rotation_speed;  // Aumentar el delta_yaw automáticamente
 	delta_pitch += auto_rotation_speed;
@@ -241,16 +235,7 @@ void MenuStage::update(float seconds_elapsed)
 
 
 
-	my_camera->lookAt(Vector3() - camRot.frontVector() * 2000.0f, Vector3(), Vector3(0.0f, 1.0f, 0.0f));
+	my_camera->lookAt(Vector3() - camRot.frontVector() * 1000.0f, Vector3(), Vector3(0.0f, 1.0f, 0.0f));
 
 	
-
-	//my_camera->lookAt(eye, center, Vector3(0.f, 1.f, 0.f));
-
-	//		float eye_x = 100 + 100.0f * cos(ang);
-	//		float eye_y = 100 + 100.0f;
-	//		float eye_z = 100 + 100.0f * sin(ang);
-
-	//		eye = Vector3(eye_x, eye_y, eye_z);
-	//		center = Vector3(100.f, 100.f, 100.f);
 }

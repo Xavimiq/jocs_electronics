@@ -50,6 +50,7 @@ public:
 	Shader* shader = nullptr;
 	Vector4 color;
 	std::vector<Matrix44> models;
+	float tiling = 1.f;
 
 	EntityMesh(Entity* parent, std::string name, Mesh* mesh, Texture* texture, Shader* shader, Vector3 pos);
 

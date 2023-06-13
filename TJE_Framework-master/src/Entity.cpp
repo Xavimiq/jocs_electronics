@@ -101,6 +101,7 @@ void EntityMesh::render()
 	shader->setUniform("u_texture", texture, 0);
 	shader->setUniform("u_model", model);
 	shader->setUniform("u_time", time);
+	shader->setUniform("u_tiling", tiling);
 
 	shader->setUniform("u_camera_pos", camera->eye);
 	shader->setUniform("u_light_pos", Vector3(400, 0, 0));
@@ -162,19 +163,12 @@ void EntityPlayer::update(float dt) {
 	yaw -= Input::mouse_delta.x * dt * 10.0f * DEG2RAD;
 	pitch -= Input::mouse_delta.y * dt * 10.0f * DEG2RAD;
 
-	//yaw = fmod(yaw, 2 * M_PI);
-	//pitch = fmod(pitch, 2 * M_PI);
-
 	pitch = clamp(pitch, -M_PI * 0.25f, M_PI * 0.25f);
 
-	/*float speed = dt * 10.0f;
-	playerCamera->eye.y = 30;
-	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) playerCamera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) playerCamera->move(Vector3(0.0f, 0.0f, -1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) playerCamera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) playerCamera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);*/
+
 
 	Entity::update(dt);
+
 }
 
 void EntityEnemy::update(float elapsed_time)

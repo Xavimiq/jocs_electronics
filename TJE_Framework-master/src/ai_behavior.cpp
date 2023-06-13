@@ -16,16 +16,16 @@ void AIBehavior::update(float seconds_elapsed)
 			state = ATTACK;
 		}
 		else {
-			//searchTarget(seconds_elapsed);
+			searchTarget(seconds_elapsed);
 		}
 
 	}
 	else if (state == ATTACK)
 	{
-		//World* world = World::get_instance();
-		//Vector3 target = world->my_player->model.getTranslation();
+		World* world = World::get_instance();
+		Vector3 target = world->my_player->model.getTranslation();
 
-		//lookAtTarget(target, seconds_elapsed);
+		lookAtTarget(target, seconds_elapsed);
 
 		if (!canSeeTarget()) {
 			std::cout << "target missed!" << std::endl;
@@ -37,86 +37,128 @@ void AIBehavior::update(float seconds_elapsed)
 		state = SEARCH;
 	}
 	//std::cout << state << std::endl;
-	position_z_pos += (float)seconds_elapsed * 50.0f;
-	
-	position_z_neg += (float)seconds_elapsed * 50.0f;
+
 }
 
 bool AIBehavior::canSeeTarget()
 {
 	World* world = World::get_instance();
 	Matrix44 target = world->my_player->model;
-	//world->checkLineOfSight(model&, );
+
+	Vector3 enemyFront = world->my_enemy->model.frontVector();
+
+
+	Vector3 toTarget = target.getTranslation() - world->my_enemy->model.getTranslation();
+
+	float distance = toTarget.length();
+	toTarget = toTarget.normalize();
+
+	Vector3 ray_origin = world->my_enemy->model.getTranslation();
+	Vector3 ray_direction = toTarget;
+
+	if (toTarget.dot(enemyFront) > 0.5)
+	{
+		for (auto e : world->root.children)
+		{
+			EntityCollider* ec = dynamic_cast<EntityCollider*>(e);
+			if (!ec) continue;
+
+			if (ec->mesh->testRayCollision(
+				ec->model,
+				ray_origin,
+				ray_direction,
+				Vector3(),
+				Vector3(),
+				distance
+			)) {
+				return false; //NO COLISIONA
+			}
+
+		}
+		return true;
+	}
 	return false;
 
 }
 
-void AIBehavior::searchTarget(float seconds_elapsed)
-{
-	if (model->getTranslation().z < 400.f && direction) {
-		model->setTranslation(0, 0, position_z_pos);
-	}
-	else {
-		if (model->getTranslation().z >= 400.f && model->getTranslation().z <= 100.f) {
-			// Cambio de dirección desde 400 a 100
-			position_z_pos = -position_z_pos;
-			model->setTranslation(0, 0, position_z_pos);
+
+void AIBehavior::searchTarget(float seconds_elapsed) {
+	if (path.size() && path.size() == World::get_instance()->waypoints.size())
+	{
+		Vector3 origin = model->getTranslation();
+		origin.y = 0.f;
+		Vector3 target = Vector3(path[wayPointIndex].position.x, 0.f, path[wayPointIndex].position.z);
+
+		float toTargetLength = (target - origin).length();
+
+		lookAtTarget(target, seconds_elapsed);
+		model->translate(0.f, 0.f, seconds_elapsed * 14.f);
+
+		if (toTargetLength < 0.1f)
+		{
+			if (walk_forwards && wayPointIndex + 1 == path.size()) {
+				walk_forwards = false;
+			}
+
+			if (!walk_forwards && wayPointIndex - 1 < 0) {
+				walk_forwards = true;
+			}
+
+			if (walk_forwards) {
+				wayPointIndex++;
+			}
+			else {
+				wayPointIndex--;
+			}
 		}
-		else if (model->getTranslation().z > 100.f && model->getTranslation().z <= 400.f) {
-			// Cambio de dirección desde 100 a 400
-			position_z_pos = -position_z_pos;
-			model->setTranslation(0, 0, position_z_neg);
+	}
+	else
+	{
+		if (World::get_instance()->waypoints.size() < 2)
+		{
+			return;
+		}
+		path.clear();
+
+		const std::vector<Vector3>& points = World::get_instance()->waypoints;
+		std::vector<WayPoint> wps;
+		wps.resize(points.size());
+
+		for (int i = 0; i < points.size() - 1; ++i)
+		{
+			wps[i].position = points[i];
+			wps[i + 1].position = points[i + 1];
+			wps[i].addLink(&wps[i + 1], (wps[i].position - wps[i + 1].position).length());
+		}
+
+		PathFinder<WayPoint> p;
+		std::vector<WayPoint*> solution;
+
+		p.setStart(wps[0]);
+		p.setGoal(wps[wps.size() - 1]);
+
+		bool r = p.findPath<Dijkstra>(solution);
+
+		if (r)
+		{
+			std::cout << "Solution (" << solution.size() - 1 << " steps) :" << std::endl;
+			for (const auto& wp : solution) {
+				std::cout << wp->position.x << ", " << wp->position.y << ", " << wp->position.z << std::endl;
+				path.push_back(wp->position);
+			}
+			std::cout << std::endl;
+		}
+		else {
+			std::cerr << "No path was found, sorry. " << std::endl;
 		}
 	}
 }
 
-//void AIBehavior::searchTarget(float seconds_elapsed) {
-//	if (path.size() && path.size() == World::get_instance()->waypoints.size())
-//	{
-//		Vector3 origin = model->getTranslation();
-//		origin.y = 0.f;
-//		Vector3 target = Vector3(path[wayPointIndex].postion.x, 0.f, path[wayPointIndex].position.z);
-//
-//		float toTargetLength = (target - origin).length();
-//
-//		lookAtTarget(target, seconds_elapsed);
-//		model->translate(0.f, 0.f, seconds_elapsed * 2.f);
-//
-//		if (toTargetLength < 0.1f)
-//		{
-//			if (walk_forwards && wayPointIndex + 1 == path.size()) {
-//				walk_forwards = false;
-//			}
-//
-//			if (!walk_forwards && wayPointIndex - 1 < 0) {
-//				walk_forwards = true;
-//			}
-//
-//			if (walk_forwards) {
-//				wayPointIndex++;
-//			}
-//			else {
-//				wayPointIndex--;
-//			}
-//		}
-//	}
-//	else
-//	{
-//		if (World::get_instance().waypoints.size() < 2)
-//		{
-//			return;
-//		}
-//		path.clear();
-//
-//		const std::vector<Vector3>& points = World::get_instance()->waypoints;
-//		std::vector<WayPoint> wps;
-//		wps.resize(points.size());
-//
-//		for (int i = 0; i < points.size() - 1; ++i)
-//		{
-//			wps[i].position = points[i];
-//			wps[i + 1].position = points[i + 1];
-//			//wps[i].addLink(&wps[i + 1],)
-//		}
-//	}
-//}
+void AIBehavior::lookAtTarget(const Vector3& target, float seconds_elapsed) {
+	
+	Vector3 origin = model->getTranslation();
+	origin.y = 0;
+	float delta_yaw = model->getYawRotationToAimTo(target);
+	model->rotate(delta_yaw * seconds_elapsed * 4, Vector3(0.f, 1.f, 0.f));
+
+}

@@ -50,7 +50,7 @@ public:
 
 	void render();
 	void update(float dt);
-	bool parseScene(const char* filename);
+	bool parseScene(const char* filename, Entity &ent, std::string stage);
 
 	std::vector<Vector3> debug_col_positions;
 
@@ -61,6 +61,8 @@ public:
 
 	bool checkPlayerCollision(Vector3& target_position, std::vector<sCollisionData>& collisions);
 	bool checkLineOfSight( Matrix44& obs,  Matrix44& target);
+
+	std::vector<Vector3> waypoints;
 
 };
 

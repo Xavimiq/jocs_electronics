@@ -66,9 +66,15 @@
     <ClCompile Include="..\..\src\Stage.cpp" />
     <ClCompile Include="..\..\src\World.cpp" />
     <ClCompile Include="..\..\src\ai_behavior.cpp" />
-    <ClCompile Include="..\..\src\extra\PathFinder\AStar.cpp" />
-    <ClCompile Include="..\..\src\extra\PathFinder\Dijkstra.cpp" />
-    <ClCompile Include="..\..\src\extra\PathFinder\Node.cpp" />
+    <ClCompile Include="..\..\src\extra\PathFinder\Dijkstra.cpp">
+      <Filter>extra\PathFinder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\extra\PathFinder\Node.cpp">
+      <Filter>extra\PathFinder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\extra\PathFinder\AStar.cpp">
+      <Filter>extra\PathFinder</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -131,12 +137,22 @@
     <ClInclude Include="..\..\src\Scene.h" />
     <ClInclude Include="..\..\src\Stage.h" />
     <ClInclude Include="..\..\src\World.h" />
+    <ClInclude Include="..\..\src\extra\PathFinder\PathAlgorithm.h">
+      <Filter>extra\PathFinder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\extra\PathFinder\PathFinder.h">
+      <Filter>extra\PathFinder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\extra\PathFinder\Dijkstra.h">
+      <Filter>extra\PathFinder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\extra\PathFinder\Node.h">
+      <Filter>extra\PathFinder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\extra\PathFinder\AStar.h">
+      <Filter>extra\PathFinder</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\ai_behavior.h" />
-    <ClInclude Include="..\..\src\extra\PathFinder\AStar.h" />
-    <ClInclude Include="..\..\src\extra\PathFinder\Dijkstra.h" />
-    <ClInclude Include="..\..\src\extra\PathFinder\Node.h" />
-    <ClInclude Include="..\..\src\extra\PathFinder\PathAlgorithm.h" />
-    <ClInclude Include="..\..\src\extra\PathFinder\PathFinder.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

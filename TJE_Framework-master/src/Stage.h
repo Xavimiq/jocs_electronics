@@ -55,7 +55,7 @@ public:
 class MenuStage : public Stage {
 
 private:
-	Entity* root;
+	Entity root;
 
 public:
 	float ang;

@@ -13,8 +13,6 @@ World* World::instance = nullptr;
 
 World::World()
 {
-	
-
 	int width = Game::instance->window_width;
 	int height = Game::instance->window_height;
 
@@ -23,26 +21,7 @@ World::World()
 	camera->lookAt(Vector3(0.f, 0.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 	camera->setPerspective(70.f, width / (float)height, 0.1f, 10000.f);
 
-	/*
-	Texture* texture;
-	texture = new Texture();
-	texture->load("data/texture.tga");
-
-	Mesh* mesh;
-	mesh = Mesh::Get("data/box.ASE");
-	//mesh2 = Mesh::Get("data/untitled.ASE");
-
-
-	// example of shader loading using the shaders manager
-	Shader* shader;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-
-	e_mesh = new EntityMesh(NULL, "ent", mesh, texture, shader, Vector3(100, 1, 1));
-	root.addChild(e_mesh);
-	*/
-
 	//RENDER SKY
-	
 	
 	Texture* texture_sky;
 	texture_sky = new Texture();
@@ -69,7 +48,7 @@ World::World()
 	Shader* shader_key;
 	shader_key = Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color.fs");
 
-	key = new EntityMesh(NULL, "key", mesh_key, texture_key, shader_key, Vector3(0, 0, 0));
+	key = new EntityMesh(NULL, "key", mesh_key, texture_key, shader_key, Vector3(-500, 0, 350));
 	root.addChild(key);
 	
 
@@ -86,34 +65,37 @@ World::World()
 	Shader* shader_enemy;
 	shader_enemy = Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color_mat.fs");
 
-	//enemy = new EntityMesh(NULL, "enemy", mesh_enemy, texture_enemy, shader_enemy, Vector3(50, 0, 50));
 
-	my_enemy = new EntityEnemy("ene", Vector3(50, 0, 200), mesh_enemy, shader_enemy, texture_enemy);
+	my_enemy = new EntityEnemy("ene", Vector3(130, 0, -300), mesh_enemy, shader_enemy, texture_enemy);
 
-	//root.addChild(my_enemy);
+	root.addChild(my_enemy);
 
+	////----------------------------------------------------------------///
 
-	my_player = new EntityPlayer(Vector3(0, 10, 2));
+	my_player = new EntityPlayer(Vector3(0, 0, 0));
 	
+	//parseScene("data/myscene_PlayStage.scene", this->root, "PlayStage");
+	parseScene("data/myscene.scene", this->root, "PlayStage");
 
-	parseScene("data/myscene.scene");
 
-	//freeCam = true;
+	std::cout << root.children.size() << std::endl;
+
+	Vector3 waypoint1 = Vector3(130, 0, -300);
+	Vector3 waypoint2 = Vector3(-380, 0, -300);
+	Vector3 waypoint3 = Vector3(-380, 0, -150);
+	Vector3 waypoint4 = Vector3(400, 0, -150);
+	//Vector3 waypoint5 = Vector3(400, 0, 400);
+
+	waypoints.push_back(waypoint1);
+	waypoints.push_back(waypoint2);
+	waypoints.push_back(waypoint3);
+	waypoints.push_back(waypoint4);
+	//waypoints.push_back(waypoint5);
 
 }
 
 void World::render()
 {
-	//if (!freeCam)
-	//{
-	//	camera->lookAt(
-	//		cameraCurrentPos,
-	//		e_mesh->getGlobalMatrix() * Vector3(0.f, 6.f, -50.f),
-	//		e_mesh->getGlobalMatrix().rotateVector(Vector3(0, 1, 0))
-	//	);
-	//}
-	
-
 	camera->enable();
 	
 	//CAMERA ORIENTATION
@@ -126,35 +108,67 @@ void World::render()
 	Vector3 eye;
 	Vector3 center;
 
-	eye = my_player->getGlobalMatrix() * Vector3(0.f, 22.f, 0.5f);
-	center = eye + front;
 
+
+	if (Input::isKeyPressed(SDL_SCANCODE_W) && Input::isKeyPressed(SDL_SCANCODE_X) && Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+	{
+		eye = my_player->getGlobalMatrix() * Vector3(0.f, 11.f, 0.5f);
+		center = eye + front;
+
+		//camera->lookAt(eye, center, Vector3(0, 1, 0));
+	}
+	else {
+		eye = my_player->getGlobalMatrix() * Vector3(0.f, 22.f, 0.5f);
+		center = eye + front;
+	}
 	camera->lookAt(eye, center, Vector3(0, 1, 0));
-	//camera->eye = my_player->position;
-	//sky->model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
-	
+
+	//MIRAR ATRÁS
+	if (Input::isKeyPressed(SDL_SCANCODE_C)) camera->lookAt(camera->eye, eye - front, Vector3(0, 1, 0));
+
+
 	//FRUSTUM TO-CHECK
+	/*
+	std::vector<Entity> entities;
+	entities.push_back(root);
 
-	//std::vector<Entity> entities;
-	//entities.push_back(root);
+	for (int i = 0; i < root.size(); i++) {
+		EntityMesh obj = static_cast<EntityMesh>(entities[i]);
 
-	//for (int i = 0; i < root.size(); i++) {
-	//	EntityMesh obj = static_cast<EntityMesh>(entities[i]);
+		Vector3 sphere_center = obj->model obj->mesh->box.center;
+		float sphere_radius = obj->mesh->radius;
 
-	//	Vector3 sphere_center = obj->model obj->mesh->box.center;
-	//	float sphere_radius = obj->mesh->radius;
+		if (camera->testSphereInFrustum(sphere_center, sphere_radius) == false ||
+			camera->eye.distance(obj->model.getTranslation()) > 500) {
+			continue;
+		}
+		obj->render();
+	}
+	*/
 
-	//	if (camera->testSphereInFrustum(sphere_center, sphere_radius) == false ||
-	//		camera->eye.distance(obj->model.getTranslation()) > 500) {
-	//		continue;
-	//	}
-	//	obj->render();
-	//}
+	if (waypoints.size() < 1)
+	{
+		Mesh mesh;
+		mesh.vertices = waypoints;
 
+		Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color.fs");
+
+		shader->enable();
+
+		//upload uniforms
+		shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+		shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		shader->setUniform("u_model", Matrix44());
+
+		//do the draw call
+		mesh.render(GL_LINE_STRIP);
+
+
+		//disable shader
+		shader->disable();
+	}
 
 	root.render();
-
-	my_enemy->render();
 }
 
 void World::update(float dt)
@@ -174,20 +188,20 @@ void World::update(float dt)
 	move_dir = Vector3();
 	
 
-	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) move_dir = move_dir + front;
-	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) move_dir = move_dir - front;
-	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) move_dir = move_dir + right;
-	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) move_dir = move_dir - right;
+	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_UP)) move_dir = (move_dir + front) * 0.5f;
+	if ((Input::isKeyPressed(SDL_SCANCODE_W) && Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) ) move_dir = (move_dir + front) * 0.75f;
+	if (Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_DOWN)) move_dir = (move_dir - front) * 0.5f;
+	if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_LEFT)) move_dir = (move_dir + right) * 0.5f;
+	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) move_dir = (move_dir - right) * 0.5f;
 	
-	
-	if((move_dir.x != 0) && (move_dir.y != 0) && (move_dir.z != 0)) move_dir.normalize();
+
+	//if((move_dir.x != 0) && (move_dir.y != 0) && (move_dir.z != 0)) move_dir.normalize();
 	
 
 
 	my_player->velocity = my_player->velocity + move_dir * my_player->speed;
 		
 	bool isOnFloor = false;
-	//
 
 	//---------------------------------- COLLISIONS
 	std::vector<sCollisionData> collisions;
@@ -241,34 +255,52 @@ void World::update(float dt)
 	playerModel.setTranslation(position.x, position.y, position.z);
 	playerModel.rotate(my_player->yaw, Vector3(0, 1, 0));
 
-	//float high_camera 
-	//camera->eye.y = high_camera;
+	root.update(dt);
 
-	if (checkLineOfSight(my_enemy->model, my_player->model))
-	{ 
-		my_enemy->color = Vector4(1.f, 0.f, 0.f, 1.f);
-		std::cout << "target spotted!!!!!!" << std::endl;
+	//COLLECT KEY
+
+	if ((my_player->model.getTranslation() - key->model.getTranslation()).length() < 50.f && Input::isKeyPressed(SDL_SCANCODE_T)) {
+		key->model.setTranslation(0.f, -6.f, 0.f);
+		//delete(key);
+		std::cout << "llave seleccionada" << std::endl;
 	}
 
-	root.update(dt);
-	my_enemy->update(dt);
-
+	//std::cout << camera->eye.x << camera->eye.y << camera->eye.z << std::endl;
 
 }
 
-bool World::parseScene(const char* filename)
+bool World::parseScene(const char* filename, Entity &ent, std::string stage)
 {
 	// You could fill the map manually to add shader and texture for each mesh
 	// If the mesh is not in the map, you can use the MTL file to render its colors
-	 //meshes_to_load["meshes/example.obj"] = { Texture::Get("texture.tga"), Shader::Get("shader.vs", "shader.fs") };
 
-	Texture* texture;
-	Shader* shader;
+	//meshes_to_load["data/PlayStage/meshes/Cube.001.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.002.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.004.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.005.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.006.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.007.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.009.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.010.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.011.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.012.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Cube.013.obj"] = { Texture::Get("data/pared.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+
+	meshes_to_load["data/PlayStage/meshes/Plane.obj"] = { Texture::Get("data/floor.png"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Plane.001.obj"] = { Texture::Get("data/pared.png"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
+	//meshes_to_load["data/PlayStage/meshes/Plane.002.obj"] = { Texture::Get("data/pared.png"), Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs") };
 
 
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	texture = new Texture();
-	texture->load("data/texture.tga");
+	//MENU
+	//meshes_to_load["data/MenuStage/meshes/Cube.005.obj"] = { Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color_mat.fs") };
+	//meshes_to_load["data/MenuStage/meshes/Cube.028.obj"] = { Texture::Get("data/texture.tga"), Shader::Get("data/shaders/basic.vs", "data/shaders/basic_color_mat.fs") };
+	//Texture* texture;
+	//Shader* shader;
+
+
+	//shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	//texture = new Texture();
+	//texture->load("data/pared.tga");
 
 
 
@@ -298,7 +330,7 @@ bool World::parseScene(const char* filename)
 		}
 
 		// Add model to mesh list (might be instanced!)
-		sRenderData& render_data = meshes_to_load[mesh_name];
+		sRenderData& render_data = meshes_to_load["data/" + stage + "/" + mesh_name];
 		render_data.models.push_back(model);
 		mesh_count++;
 	}
@@ -306,7 +338,8 @@ bool World::parseScene(const char* filename)
 	// Iterate through meshes loaded and create corresponding entities
 	for (auto data : meshes_to_load) {
 
-		mesh_name = "data/" + data.first;
+		mesh_name = data.first;
+		
 		sRenderData& render_data = data.second;
 
 		// No transforms, anything to do here
@@ -316,23 +349,40 @@ bool World::parseScene(const char* filename)
 		// Create instanced entity
 		if (render_data.models.size() > 1) {
 			//InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), render_data.shader, render_data.texture);
-			InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), shader, texture);
+			//InstancedEntityMesh* new_entity = new InstancedEntityMesh(Mesh::Get(mesh_name.c_str()), shader, texture);
 
 
 			// Add all instances
-			new_entity->models = render_data.models;
+			//new_entity->models = render_data.models;
 			// Add entity to scene root
 			//root.addChild(new_entity);
-			root.addChild(new_entity);
+			//root.addChild(new_entity);
 		}
 		// Create normal entity
 		else {
 			//EntityMesh* new_entity = new EntityMesh(NULL, "ent", Mesh::Get(mesh_name.c_str()), render_data.texture, render_data.shader, Vector3());
-			EntityMesh* new_entity = new EntityMesh(NULL, "ent", Mesh::Get(mesh_name.c_str()), texture, shader, Vector3());
+			if(render_data.shader == NULL)
+			{
+				render_data.shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+			}
+			if (render_data.texture == NULL)
+			{
+				render_data.texture = Texture::Get("data/pared.png");
+			}
+			EntityMesh* new_entity = new EntityMesh(NULL, "ent", Mesh::Get(mesh_name.c_str()), render_data.texture, render_data.shader, Vector3());
+			std::cout << mesh_name << std::endl;
+			if (render_data.texture == Texture::Get("data/floor.png"))
+			{
+				new_entity->tiling = 30.f;
+			}
+			else {
+				new_entity->tiling = 1.f;
+			}
+			
 
 			new_entity->model = render_data.models[0];
 			// Add entity to scene root
-			root.addChild(new_entity);
+			ent.addChild(new_entity);
 		}
 	}
 
